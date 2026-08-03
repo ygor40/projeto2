@@ -13,4 +13,15 @@ $options = [
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 ];
 
-$pdo = new PDO($dsn, $user, $pass, $options);
+try {
+    $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (PDOException $e) {
+    http_response_code(500);
+
+    echo json_encode([
+        'erro' => 'Erro ao conectar com o banco',
+        'detalhes' => $e->getMessage()
+    ]);
+
+    exit;
+}
