@@ -1,14 +1,31 @@
 <?php
 
-header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/json; charset=utf-8');
 
 require __DIR__ . '/../conexao.php';
 
-$sql = "SELECT id, nome, categoria, descricao, ano_criacao
-        FROM tecnologias
-        WHERE status = 'ativo'";
+try {
 
-$tecnologias = $pdo->query($sql)->fetchAll();
+    $stmt = $pdo->prepare(
+        "SELECT id, nome, categoria, descricao, ano_criacao
+         FROM tecnologias
+         ORDER BY id"
+    );
 
-echo json_encode($tecnologias);
+    $stmt->execute();
+
+    echo json_encode(
+        $stmt->fetchAll(),
+        JSON_UNESCAPED_UNICODE
+    );
+
+} catch (PDOException $e) {
+
+    http_response_code(500);
+
+    echo json_encode([
+        'erro' => 'Falha no banco de dados',
+        'detalhes' => $e->getMessage()
+    ]);
+}
