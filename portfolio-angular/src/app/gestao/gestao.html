@@ -1,0 +1,229 @@
+<section class="gestao reveal">
+
+  <div class="cabecalho-gestao">
+    <span class="tag">ADMIN</span>
+
+    <h1>Área de Gestão</h1>
+
+    <p>
+      Adicione, edite e remova projetos diretamente pela aplicação.
+    </p>
+  </div>
+
+
+  <form
+    [formGroup]="form"
+    (ngSubmit)="salvar()"
+    class="form-gestao">
+
+    <h2>
+      {{ editandoId !== null ? 'Editar projeto' : 'Adicionar projeto' }}
+    </h2>
+
+
+    <div class="campo">
+
+      <label for="nome">
+        Nome do projeto
+      </label>
+
+      <input
+        id="nome"
+        type="text"
+        formControlName="nome"
+        placeholder="Digite o nome do projeto">
+
+      @if (
+        form.controls.nome.touched &&
+        form.controls.nome.invalid
+      ) {
+        <span class="erro-campo">
+          Informe um nome com pelo menos 3 caracteres.
+        </span>
+      }
+
+    </div>
+
+
+    <div class="campo">
+
+      <label for="descricao">
+        Descrição
+      </label>
+
+      <textarea
+        id="descricao"
+        formControlName="descricao"
+        rows="4"
+        placeholder="Descreva o projeto">
+      </textarea>
+
+    </div>
+
+
+    <div class="campo">
+
+      <label for="tecnologias">
+        Tecnologias
+      </label>
+
+      <input
+        id="tecnologias"
+        type="text"
+        formControlName="tecnologias"
+        placeholder="Angular, PHP, MariaDB...">
+
+    </div>
+
+
+    <div class="campo">
+
+      <label for="link_github">
+        Link do GitHub
+      </label>
+
+      <input
+        id="link_github"
+        type="text"
+        formControlName="link_github"
+        placeholder="https://github.com/...">
+
+    </div>
+
+
+    <div class="campo">
+
+      <label for="ano">
+        Ano
+      </label>
+
+      <input
+        id="ano"
+        type="number"
+        formControlName="ano">
+
+    </div>
+
+
+    <div class="acoes-form">
+
+      <button
+        type="submit"
+        class="btn-salvar"
+        [disabled]="salvando">
+
+        @if (salvando) {
+          Salvando...
+        } @else if (editandoId !== null) {
+          Salvar alterações
+        } @else {
+          Adicionar projeto
+        }
+
+      </button>
+
+
+      @if (editandoId !== null) {
+
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="cancelarEdicao()">
+
+          Cancelar
+
+        </button>
+
+      }
+
+    </div>
+
+  </form>
+
+
+  @if (erro) {
+    <div class="mensagem-erro">
+      {{ erro }}
+    </div>
+  }
+
+
+  <section class="lista-projetos">
+
+    <div class="titulo-lista">
+
+      <h2>Projetos cadastrados</h2>
+
+      <span>
+        {{ projetos.length }} projetos
+      </span>
+
+    </div>
+
+
+    @if (carregando) {
+
+      <p class="estado">
+        Carregando projetos...
+      </p>
+
+    } @else {
+
+      @for (p of projetos; track p.id) {
+
+        <article class="projeto-item reveal">
+
+          <div class="projeto-info">
+
+            <span class="projeto-id">
+              #{{ p.id }}
+            </span>
+
+            <div>
+
+              <h3>
+                {{ p.nome }}
+              </h3>
+
+              <p>
+                {{ p.tecnologias || 'Sem tecnologias informadas' }}
+                •
+                {{ p.ano }}
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="projeto-acoes">
+
+            <button
+              type="button"
+              class="btn-editar"
+              (click)="editar(p)">
+
+              Editar
+
+            </button>
+
+            <button
+              type="button"
+              class="btn-excluir"
+              (click)="excluir(p)">
+
+              Excluir
+
+            </button>
+
+          </div>
+
+        </article>
+
+      }
+
+    }
+
+  </section>
+
+</section>
