@@ -1,17 +1,108 @@
-<mat-card class="reveal">
+<mat-card class="reveal contato-card">
+
   <mat-card-header>
     <mat-card-title>Contato</mat-card-title>
-    <mat-card-subtitle>Entre em contato comigo</mat-card-subtitle>
+
+    <mat-card-subtitle>
+      Envie uma mensagem para mim
+    </mat-card-subtitle>
   </mat-card-header>
 
   <mat-card-content>
-    <p>
-      Caso queira conversar sobre projetos, estudos ou oportunidades,
-      entre em contato pelos canais abaixo:
+
+    <p class="descricao-contato">
+      Preencha os campos abaixo. Sua mensagem será enviada
+      para a API e salva no banco de dados.
     </p>
 
-    <p>
-      📧 Email: ygorgustavoalvesf@gmail.com
-    </p>
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()">
+
+      <div class="campo">
+        <label for="nome">Nome</label>
+
+        <input
+          id="nome"
+          type="text"
+          formControlName="nome"
+          placeholder="Digite seu nome">
+
+        @if (
+          form.controls.nome.touched &&
+          form.controls.nome.invalid
+        ) {
+          <span class="erro-campo">
+            Informe um nome com pelo menos 3 caracteres.
+          </span>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="email">E-mail</label>
+
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="seuemail@exemplo.com">
+
+        @if (
+          form.controls.email.touched &&
+          form.controls.email.invalid
+        ) {
+          <span class="erro-campo">
+            Informe um e-mail válido.
+          </span>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="mensagem">Mensagem</label>
+
+        <textarea
+          id="mensagem"
+          formControlName="mensagem"
+          rows="6"
+          placeholder="Digite sua mensagem..."></textarea>
+
+        @if (
+          form.controls.mensagem.touched &&
+          form.controls.mensagem.invalid
+        ) {
+          <span class="erro-campo">
+            A mensagem precisa ter pelo menos 10 caracteres.
+          </span>
+        }
+      </div>
+
+      <button
+        class="btn-enviar"
+        type="submit"
+        [disabled]="enviando">
+
+        @if (enviando) {
+          Enviando...
+        } @else {
+          Enviar mensagem
+        }
+
+      </button>
+
+    </form>
+
+    @if (sucesso) {
+      <div class="mensagem sucesso">
+        {{ sucesso }}
+      </div>
+    }
+
+    @if (erro) {
+      <div class="mensagem erro">
+        {{ erro }}
+      </div>
+    }
+
   </mat-card-content>
+
 </mat-card>
