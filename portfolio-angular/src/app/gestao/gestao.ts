@@ -13,11 +13,9 @@ import {
 
 @Component({
   selector: 'app-gestao',
-
   imports: [
     ReactiveFormsModule
   ],
-
   templateUrl: './gestao.html',
   styleUrl: './gestao.css'
 })
@@ -59,17 +57,17 @@ export class Gestao implements OnInit {
     ano: new FormControl(2026, {
       nonNullable: true,
       validators: [
-        Validators.required
+        Validators.required,
+        Validators.min(2000),
+        Validators.max(2100)
       ]
     })
 
   });
 
-
   ngOnInit(): void {
     this.carregar();
   }
-
 
   carregar(): void {
 
@@ -79,45 +77,28 @@ export class Gestao implements OnInit {
     this.service.listar().subscribe({
 
       next: (lista) => {
-
         this.projetos = lista;
-
         this.carregando = false;
       },
 
       error: () => {
-
-        this.erro =
-          'Não foi possível carregar os projetos.';
-
+        this.erro = 'Não foi possível carregar os projetos.';
         this.carregando = false;
       }
 
     });
   }
 
-
   editar(projeto: Projeto): void {
 
-    this.editandoId =
-      projeto.id ?? null;
+    this.editandoId = projeto.id ?? null;
 
     this.form.patchValue({
-
       nome: projeto.nome,
-
-      descricao:
-        projeto.descricao ?? '',
-
-      tecnologias:
-        projeto.tecnologias ?? '',
-
-      link_github:
-        projeto.link_github ?? '',
-
-      ano:
-        projeto.ano
-
+      descricao: projeto.descricao ?? '',
+      tecnologias: projeto.tecnologias ?? '',
+      link_github: projeto.link_github ?? '',
+      ano: projeto.ano
     });
 
     window.scrollTo({
@@ -126,15 +107,12 @@ export class Gestao implements OnInit {
     });
   }
 
-
   salvar(): void {
 
     this.erro = '';
 
     if (this.form.invalid) {
-
       this.form.markAllAsTouched();
-
       return;
     }
 
@@ -148,19 +126,10 @@ export class Gestao implements OnInit {
       ano: this.form.controls.ano.value
     };
 
-
     const requisicao =
       this.editandoId !== null
-
-        ? this.service.atualizar(
-            this.editandoId,
-            dados
-          )
-
-        : this.service.criar(
-            dados
-          );
-
+        ? this.service.atualizar(this.editandoId, dados)
+        : this.service.criar(dados);
 
     requisicao.subscribe({
 
@@ -168,8 +137,10 @@ export class Gestao implements OnInit {
 
         this.salvando = false;
 
+        // Volta para o modo "Adicionar projeto"
         this.cancelarEdicao();
 
+        // Atualiza a lista automaticamente sem F5
         this.carregar();
       },
 
@@ -178,69 +149,57 @@ export class Gestao implements OnInit {
         this.salvando = false;
 
         this.erro =
-          'Não foi possível salvar o projeto.';
+          'Não foi possível salvar o projeto. Tente novamente.';
       }
 
     });
   }
 
-
   excluir(projeto: Projeto): void {
+
+    this.erro = '';
 
     if (!projeto.id) {
       return;
     }
 
     const confirmar = confirm(
-      `Excluir o projeto "${projeto.nome}"?`
+      `Excluir o projeto "${projeto.nome}"? Esta ação não pode ser desfeita.`
     );
 
     if (!confirmar) {
       return;
     }
 
+    this.service.excluir(projeto.id).subscribe({
 
-    this.service
-      .excluir(projeto.id)
-      .subscribe({
+      next: () => {
 
-        next: () => {
+        // Remove da lista na hora, sem F5
+        this.projetos = this.projetos.filter(
+          item => item.id !== projeto.id
+        );
+      },
 
-          this.projetos =
-            this.projetos.filter(
-              item =>
-                item.id !== projeto.id
-            );
+      error: () => {
 
-        },
+        this.erro =
+          'Não foi possível excluir o projeto. Tente novamente.';
+      }
 
-        error: () => {
-
-          this.erro =
-            'Não foi possível excluir o projeto.';
-
-        }
-
-      });
+    });
   }
-
 
   cancelarEdicao(): void {
 
     this.editandoId = null;
 
     this.form.reset({
-
       nome: '',
-
       descricao: '',
-
       tecnologias: '',
-
       link_github: '',
-
       ano: 2026
-
     });
   }
 }
