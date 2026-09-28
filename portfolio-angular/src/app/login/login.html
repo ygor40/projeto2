@@ -1,0 +1,62 @@
+<section class="login-page">
+
+  <div class="login-card">
+
+    <div class="login-header">
+      <span class="login-tag">ÁREA RESTRITA</span>
+
+      <h1>Entrar</h1>
+
+      <p>
+        Acesse o painel de gestão do portfólio.
+      </p>
+    </div>
+
+    <form (ngSubmit)="entrar()">
+
+      <div class="campo">
+        <label for="username">Usuário</label>
+
+        <input
+          id="username"
+          type="text"
+          name="username"
+          [(ngModel)]="username"
+          placeholder="Digite seu usuário"
+          autocomplete="username"
+        >
+      </div>
+
+      <div class="campo">
+        <label for="password">Senha</label>
+
+        <input
+          id="password"
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          placeholder="Digite sua senha"
+          autocomplete="current-password"
+        >
+      </div>
+
+      @if (erro) {
+        <div class="erro">
+          {{ erro }}
+        </div>
+      }
+
+      <button
+        type="submit"
+        [disabled]="carregando"
+      >
+        {{ carregando ? 'Entrando...' : 'Entrar' }}
+      </button>
+
+    </form>
+
+    <a routerLink="/">Voltar para o portfólio</a>
+
+  </div>
+
+</section>

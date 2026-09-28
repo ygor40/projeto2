@@ -1,22 +1,25 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
-import { Projetos } from './projetos';
+export interface Projeto {
+  id: number;
+  nome: string;
+  descricao: string;
+  tecnologias: string;
+  link_github: string | null;
+  ano: number;
+}
 
-describe('Projetos', () => {
-  let component: Projetos;
-  let fixture: ComponentFixture<Projetos>;
+@Injectable({
+  providedIn: 'root'
+})
+export class ProjetoService {
+  private url = 'https://laughing-space-succotash-pjv6p6qv654v377gw-3000.app.github.dev/';
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [Projetos],
-    }).compileComponents();
+  constructor(private http: HttpClient) { }
 
-    fixture = TestBed.createComponent(Projetos);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+  getProjetos(): Observable<Projeto[]> {
+    return this.http.get<Projeto[]>(this.url);
+  }
+}

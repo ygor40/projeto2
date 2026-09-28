@@ -1,0 +1,97 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 40px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 24px;
+  background: rgba(20,20,20,.8);
+  box-shadow: 0 25px 80px rgba(0,0,0,.5);
+  backdrop-filter: blur(20px);
+}
+
+.login-header {
+  margin-bottom: 30px;
+}
+
+.login-tag {
+  font-size: 11px;
+  letter-spacing: 2px;
+  opacity: .5;
+}
+
+h1 {
+  margin: 10px 0;
+  font-size: 36px;
+}
+
+p {
+  opacity: .6;
+}
+
+.campo {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  background: #151515;
+  color: white;
+  outline: none;
+}
+
+input:focus {
+  border-color: rgba(255,255,255,.5);
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 5px;
+  border: 0;
+  border-radius: 12px;
+  background: white;
+  color: #111;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.erro {
+  margin-bottom: 15px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 60, 60, .1);
+  color: #ff6b6b;
+  font-size: 14px;
+}
+
+.login-card > a {
+  display: block;
+  margin-top: 20px;
+  text-align: center;
+  color: white;
+  opacity: .6;
+  text-decoration: none;
+}
