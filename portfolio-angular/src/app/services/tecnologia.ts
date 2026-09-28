@@ -18,7 +18,7 @@ export class TecnologiaService {
   private http = inject(HttpClient);
 
   private url =
-    'https://laughing-space-succotash-pjv6p6qv654v377gw-8000.app.github.dev/api/tecnologias.php';
+    'https://laughing-space-succotash-pjv6p6qv654v377gw-3000.app.github.dev/api/tecnologias';
 
   listar(): Observable<Tecnologia[]> {
     return this.http.get<Tecnologia[]>(this.url);

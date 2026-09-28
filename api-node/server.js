@@ -11,11 +11,42 @@ app.get('/', (req, res) => {
   res.send('API do Portfólio em Node: no ar');
 });
 
-// Rota atualizada para buscar os projetos diretamente do banco de dados MariaDB
+// Buscar todos os projetos
 app.get('/api/projetos', async (req, res) => {
-  const sql = "SELECT id, nome, descricao, tecnologias, link_github, ano FROM projetos";
-  const [projetos] = await pool.query(sql);
-  res.json(projetos);
+  try {
+    const sql = "SELECT id, nome, descricao, tecnologias, link_github, ano FROM projetos";
+    const [projetos] = await pool.query(sql);
+    res.json(projetos);
+  } catch (erro) {
+    res.status(500).json({ erro: 'Falha no servidor: ' + erro.message });
+  }
+});
+
+// Buscar um projeto pelo id
+app.get('/api/projetos/:id', async (req, res) => {
+  try {
+    const sql = "SELECT id, nome, descricao, tecnologias, link_github, ano FROM projetos WHERE id = ?";
+    const [linhas] = await pool.execute(sql, [req.params.id]);
+
+    if (linhas.length === 0) {
+      return res.status(404).json({ erro: 'Projeto nao encontrado' });
+    }
+
+    res.json(linhas[0]);
+  } catch (erro) {
+    res.status(500).json({ erro: 'Falha no servidor: ' + erro.message });
+  }
+});
+
+// Catalogo de tecnologias
+app.get('/api/tecnologias', async (req, res) => {
+  try {
+    const sql = "SELECT id, nome, categoria, descricao, ano_criacao FROM tecnologias";
+    const [tecnologias] = await pool.query(sql);
+    res.json(tecnologias);
+  } catch (erro) {
+    res.status(500).json({ erro: 'Falha no servidor: ' + erro.message });
+  }
 });
 
 app.listen(PORTA, () => {
