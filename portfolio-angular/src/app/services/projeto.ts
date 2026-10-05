@@ -42,7 +42,7 @@ export class ProjetoService {
 
   // Métodos de edição
   atualizar(id: number, projeto: Projeto): Observable<Projeto> {
-    return this.http.put<Projeto>(`${this.apiUrl}?id=${id}`, projeto);
+    return this.http.put<Projeto>(`${this.apiUrl}/${id}`, projeto);
   }
 
   atualizarProjeto(id: number, projeto: Projeto): Observable<Projeto> {
@@ -51,7 +51,7 @@ export class ProjetoService {
 
   // Métodos de exclusão
   deletar(id: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}?id=${id}`);
+    return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
 
   deletarProjeto(id: number): Observable<any> {
