@@ -1,0 +1,75 @@
+/* Portfolio em React - estilos globais (Aula 25) */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+  color: #333333;
+}
+
+header {
+  background-color: #35579d;
+  color: #ffffff;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 30px;
+  flex: 1;
+}
+
+nav a {
+  color: #ffffff;
+  margin-left: 16px;
+  text-decoration: none;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+main {
+  max-width: 900px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background-color: #ffffff;
+  border: 1px solid #d0dbe8;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.card h3 {
+  margin-top: 0;
+}
+
+.card .meta {
+  margin-top: 0.5rem;
+  color: #207200;
+  font-size: 14px;
+}
+
+.card .meta strong {
+  font-weight: bold;
+}
+
+footer {
+  text-align: center;
+  color: #0b2200;
+  padding: 24px;
+  font-size: 14px;
+}
