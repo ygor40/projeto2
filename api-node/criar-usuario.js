@@ -1,0 +1,23 @@
+const bcrypt = require('bcryptjs');
+const pool = require('./db');
+
+async function criar() {
+  const email = process.argv[2];
+  const senha = process.argv[3];
+
+  if (!email || !senha) {
+    console.log('Uso: node criar-usuario.js email senha');
+    return;
+  }
+
+  const senha_hash = await bcrypt.hash(senha, 10);
+  const [resultado] = await pool.query(
+    'INSERT INTO usuarios (email, senha_hash) VALUES (?, ?)',
+    [email, senha_hash]
+  );
+
+  console.log('Usuario ' + resultado.insertId + ' criado: ' + email);
+  await pool.end();
+}
+
+criar();

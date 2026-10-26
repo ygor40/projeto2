@@ -1,18 +1,73 @@
 const express = require('express');
 const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const pool = require('./db');
 
 const app = express();
 const PORTA = 3000;
+const SEGREDO = 'troque-por-uma-frase-longa-que-so-voce-sabe';
 
 app.use(cors());
 app.use(express.json());
+
+// Middleware para conferir o token antes da rota
+function autenticar(req, res, next) {
+  const cabecalho = req.headers.authorization ?? '';
+  const token = cabecalho.replace('Bearer ', '');
+
+  if (!token) {
+    return res.status(401).json({ erro: 'Token ausente' });
+  }
+
+  try {
+    req.usuario = jwt.verify(token, SEGREDO);
+    next();
+  } catch (erro) {
+    return res.status(401).json({ erro: 'Token invalido ou expirado' });
+  }
+}
 
 app.get('/', (req, res) => {
   res.send('API do Portfólio em Node: no ar');
 });
 
-// Buscar todos os projetos
+// Rota de Login (Autenticação)
+app.post('/api/login', async (req, res) => {
+  try {
+    const dados = req.body;
+    if (!dados || !dados.email || !dados.senha) {
+      return res.status(400).json({ erro: 'Informe email e senha' });
+    }
+
+    const [linhas] = await pool.query(
+      'SELECT id, email, senha_hash FROM usuarios WHERE email = ?',
+      [dados.email]
+    );
+
+    if (!linhas.length) {
+      return res.status(401).json({ erro: 'Email ou senha invalidos' });
+    }
+
+    const usuario = linhas[0];
+    const confere = await bcrypt.compare(dados.senha, usuario.senha_hash);
+
+    if (!confere) {
+      return res.status(401).json({ erro: 'Email ou senha invalidos' });
+    }
+
+    const token = jwt.sign(
+      { id: usuario.id, email: usuario.email },
+      SEGREDO
+    );
+
+    res.json({ token });
+  } catch (erro) {
+    res.status(500).json({ erro: 'Falha no servidor: ' + erro.message });
+  }
+});
+
+// Buscar todos os projetos (Rota pública)
 app.get('/api/projetos', async (req, res) => {
   try {
     const sql = "SELECT id, nome, descricao, tecnologias, link_github, ano FROM projetos";
@@ -23,7 +78,7 @@ app.get('/api/projetos', async (req, res) => {
   }
 });
 
-// Buscar um projeto pelo id
+// Buscar um projeto pelo id (Rota pública)
 app.get('/api/projetos/:id', async (req, res) => {
   try {
     const sql = "SELECT id, nome, descricao, tecnologias, link_github, ano FROM projetos WHERE id = ?";
@@ -39,8 +94,8 @@ app.get('/api/projetos/:id', async (req, res) => {
   }
 });
 
-// POST cria: os dados vem no corpo, em JSON, e o id nasce no banco
-app.post('/api/projetos', async (req, res) => {
+// POST cria (Rota protegida por autenticar)
+app.post('/api/projetos', autenticar, async (req, res) => {
   try {
     const dados = req.body;
     if (!dados || !dados.nome) {
@@ -63,8 +118,8 @@ app.post('/api/projetos', async (req, res) => {
   }
 });
 
-// PUT altera: id vai no caminho (req.params) e o corpo traz os novos dados (req.body)
-app.put('/api/projetos/:id', async (req, res) => {
+// PUT altera (Rota protegida por autenticar)[cite: 12]
+app.put('/api/projetos/:id', autenticar, async (req, res) => {
   try {
     const dados = req.body;
     if (!dados || !dados.nome) {
@@ -91,8 +146,8 @@ app.put('/api/projetos/:id', async (req, res) => {
   }
 });
 
-// DELETE apaga: so precisa do id. Nao ha corpo no pedido, e a resposta tambem nao.
-app.delete('/api/projetos/:id', async (req, res) => {
+// DELETE apaga (Rota protegida por autenticar)[cite: 12]
+app.delete('/api/projetos/:id', autenticar, async (req, res) => {
   try {
     const [resultado] = await pool.execute('DELETE FROM projetos WHERE id = ?', [req.params.id]);
 
@@ -106,7 +161,7 @@ app.delete('/api/projetos/:id', async (req, res) => {
   }
 });
 
-// Catalogo de tecnologias
+// Catalogo de tecnologias (Rota pública)
 app.get('/api/tecnologias', async (req, res) => {
   try {
     const sql = "SELECT id, nome, categoria, descricao, ano_criacao FROM tecnologias";
