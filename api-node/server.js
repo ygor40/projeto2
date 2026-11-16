@@ -67,10 +67,10 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// Buscar todos os projetos (Rota pública)
+// Buscar todos os projetos publicados (Rota pública)
 app.get('/api/projetos', async (req, res) => {
   try {
-    const sql = "SELECT id, nome, descricao, tecnologias, link_github, ano FROM projetos";
+    const sql = "SELECT id, nome, descricao, tecnologias, link_github, ano FROM projetos WHERE status = 'publicado'";
     const [projetos] = await pool.query(sql);
     res.json(projetos);
   } catch (erro) {
