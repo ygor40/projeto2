@@ -2,7 +2,7 @@
 
 Projeto full-stack composto por:
 - **`api-node/`**: API REST em **Node.js + Express** conectada ao **MariaDB**, com autenticação via **JWT** (`jsonwebtoken`) e senhas criptografadas com **`bcryptjs`**.
-- **`portfolio-react/`**: Front-end em **React + Vite** organizado em componentes (`Cabecalho`, `CardProjeto` e `Rodape`).
+- **`portfolio-react/`**: Front-end em **React + Vite** organizado em componentes (`Cabecalho`, `CardProjeto`, `Contato` e `Rodape`) e dados em `src/projetos.js`.
 - **`portfolio-angular/`**: Versão anterior em Angular + PHP (histórico das atividades iniciais).
 
 ---
@@ -174,6 +174,12 @@ npm run dev
 
 A aplicação abre na porta **5173** (`http://localhost:5173`).
 
+### Aula 26: estado, lista e formulário
+
+Os projetos saíram do `App.jsx` e moram em `src/projetos.js`. A tela os desenha com `map()`.
+
+O formulário de contato (`src/Contato.jsx`) guarda o que a pessoa digita no estado (`useState`). Ele ainda não envia nada: avisa e limpa os campos. O envio de verdade chega com a API na Aula 27.
+
 ---
 
 ## Estrutura do Projeto
@@ -191,9 +197,11 @@ projeto2/
 │   │   ├── App.jsx
 │   │   ├── Cabecalho.jsx
 │   │   ├── CardProjeto.jsx
+│   │   ├── Contato.jsx
 │   │   ├── Rodape.jsx
 │   │   ├── index.css
-│   │   └── main.jsx
+│   │   ├── main.jsx
+│   │   └── projetos.js
 │   └── package.json
 └── portfolio-angular/
     ├── api/
