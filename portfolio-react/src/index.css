@@ -1,4 +1,4 @@
-/* Portfolio em React - estilos globais (Aula 25 e 26) */
+/* Portfolio em React - estilos globais (Aula 25, 26 e 27) */
 * {
   box-sizing: border-box;
 }
@@ -106,4 +106,14 @@ button {
 .aviso {
   color: #1b5e20;
   font-weight: bold;
+}
+
+/* Mensagem de erro e Catálogo de tecnologias (Aula 27) */
+.erro {
+  color: #b91c1c;
+  font-weight: bold;
+}
+
+.catalogo {
+  margin-top: 32px;
 }

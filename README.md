@@ -2,7 +2,7 @@
 
 Projeto full-stack composto por:
 - **`api-node/`**: API REST em **Node.js + Express** conectada ao **MariaDB**, com autenticação via **JWT** (`jsonwebtoken`) e senhas criptografadas com **`bcryptjs`**.
-- **`portfolio-react/`**: Front-end em **React + Vite** organizado em componentes (`Cabecalho`, `CardProjeto`, `Contato` e `Rodape`) e dados em `src/projetos.js`.
+- **`portfolio-react/`**: Front-end em **React + Vite** organizado em componentes (`Cabecalho`, `CardProjeto`, `Catalogo`, `Contato` e `Rodape`) integrado à API via `src/api.js`.
 - **`portfolio-angular/`**: Versão anterior em Angular + PHP (histórico das atividades iniciais).
 
 ---
@@ -180,6 +180,18 @@ Os projetos saíram do `App.jsx` e moram em `src/projetos.js`. A tela os desenha
 
 O formulário de contato (`src/Contato.jsx`) guarda o que a pessoa digita no estado (`useState`). Ele ainda não envia nada: avisa e limpa os campos. O envio de verdade chega com a API na Aula 27.
 
+### Aula 27: os projetos vêm da API
+
+O front busca os projetos e o catálogo na API em Node, com `fetch` dentro de um `useEffect`. O endereço da API fica em `src/api.js`. O arquivo `src/projetos.js` saiu: os dados moram no banco.
+
+Para a tela mostrar os dados, a API precisa estar de pé, com a porta 3000 em Public:
+
+```bash
+sudo service mariadb start
+cd api-node
+node server.js
+```
+
 ---
 
 ## Estrutura do Projeto
@@ -197,11 +209,12 @@ projeto2/
 │   │   ├── App.jsx
 │   │   ├── Cabecalho.jsx
 │   │   ├── CardProjeto.jsx
+│   │   ├── Catalogo.jsx
 │   │   ├── Contato.jsx
 │   │   ├── Rodape.jsx
+│   │   ├── api.js
 │   │   ├── index.css
-│   │   ├── main.jsx
-│   │   └── projetos.js
+│   │   └── main.jsx
 │   └── package.json
 └── portfolio-angular/
     ├── api/
