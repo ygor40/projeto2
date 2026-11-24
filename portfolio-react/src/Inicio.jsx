@@ -33,6 +33,9 @@ function Inicio() {
       <h2>Projetos</h2>
       {carregando && <p>Carregando projetos...</p>}
       {erro && <p className="erro">{erro}</p>}
+      {!carregando && !erro && projetos.length === 0 && (
+        <p>Nenhum projeto cadastrado no momento.</p>
+      )}
       <div className="cards">
         {projetos.map((p) => (
           <CardProjeto

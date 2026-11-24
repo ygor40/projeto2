@@ -2,12 +2,12 @@
 
 Projeto full-stack composto por:
 - **`api-node/`**: API REST em **Node.js + Express** conectada ao **MariaDB**, com autenticação via **JWT** (`jsonwebtoken`) e senhas criptografadas com **`bcryptjs`**.
-- **`portfolio-react/`**: Front-end em **React + Vite** com navegação SPA via **`react-router-dom`** (`Inicio`, `Gestao` e `NaoEncontrada`), integrado à API via `src/api.js` e com cadastro autenticado de projetos (`NovoProjeto`).
+- **`portfolio-react/`**: Front-end em **React + Vite** com navegação SPA via **`react-router-dom`** (`Inicio`, `Gestao` e `NaoEncontrada`), integrado à API via `src/api.js` e com CRUD autenticado de projetos (`Gestao` + `NovoProjeto`).
 - **`portfolio-angular/`**: Versão anterior em Angular + PHP (histórico das atividades iniciais).
 
 ---
 
-## Como rodar a API Node (`api-node/`) do zero
+## Como rodar tudo do zero (na ordem)
 
 ### 1. Iniciar o MariaDB e criar o banco e as tabelas
 Na raiz do repositório (`/workspaces/projeto2`), inicie o serviço do banco e importe os scripts SQL:
@@ -18,32 +18,71 @@ sudo mariadb < portfolio-angular/sql/setup.sql
 sudo mariadb dwii_db < portfolio-angular/sql/usuarios.sql
 ```
 
-### 2. Instalar as dependências da API Node
-Entre na pasta `api-node/` e instale os pacotes (`express`, `cors`, `mysql2`, `bcryptjs`, `jsonwebtoken`):
+### 2. Instalar dependências da API Node e criar o usuário do login
+Entre na pasta `api-node/`, instale os pacotes (`express`, `cors`, `mysql2`, `bcryptjs`, `jsonwebtoken`) e cadastre o usuário administrador (substitua `<email>` e `<senha>` pelas suas credenciais):
 
 ```bash
 cd api-node
 npm install
+node criar-usuario.js <email> <senha>
 ```
 
-### 3. Criar o usuário administrador
-Cadastre o dono do portfólio no banco utilizando o script `criar-usuario.js`:
+### 3. Iniciar o servidor da API (`api-node/`)
+Ainda dentro de `api-node/`, inicie a API na porta **3000**:
 
-```bash
-node criar-usuario.js dono@portfolio.dev portfolio2026
-```
-
-### 4. Iniciar o servidor da API
 ```bash
 node server.js
 ```
 
-A API ficará disponível em:
-```text
-http://localhost:3000
+### 4. Liberar a porta 3000 como Public (GitHub Codespaces)
+Na aba **Ports** do Codespaces, altere a visibilidade da porta **3000** de *Private* para **Public** e copie a URL gerada.
+
+### 5. Configurar o endereço da API no front (`portfolio-react/src/api.js`)
+Abra `portfolio-react/src/api.js` e confira se a constante `API` aponta para a URL pública da porta **3000** (ou `http://localhost:3000` em ambiente local).
+
+### 6. Instalar dependências e subir o front-end React (`portfolio-react/`)
+Em outro terminal, entre na pasta `portfolio-react/`, instale os pacotes e inicie o servidor Vite na porta **5173**:
+
+```bash
+cd portfolio-react
+npm install
+npm run dev
 ```
 
-*(No GitHub Codespaces, certifique-se de que a porta **3000** está com visibilidade **Public** na aba **Ports**.)*
+---
+
+## Endereços do Front-end (Rotas)
+
+- **`/` (`Inicio.jsx`)**: tela pública do portfólio; lista os projetos publicados (`GET /api/projetos`) com aviso quando não há projetos cadastrados, exibe o catálogo de tecnologias (`GET /api/tecnologias`) e o formulário de contato (`Contato.jsx`).
+- **`/gestao` (`Gestao.jsx`)**: área administrativa; realiza login (`POST /api/login`), salva o token JWT no `localStorage`, permite cadastrar (`POST`), editar (`PUT`) e excluir (`DELETE`) projetos sem recarregar a página, e encerra a sessão voltando ao login caso a API responda `401`.
+- **`*` (`NaoEncontrada.jsx`)**: tela exibida para qualquer endereço inexistente, com link (`<Link to="/">`) para retornar à página inicial.
+
+---
+
+## Tela × Pedido à API × Precisa de token
+
+| Tela / Ação | Pedido à API | Precisa de token? |
+| :--- | :--- | :--- |
+| `/` (`Inicio.jsx`) — listar projetos | `GET /api/projetos` | Não |
+| `/` (`Catalogo.jsx`) — listar tecnologias | `GET /api/tecnologias` | Não |
+| `/gestao` (`Gestao.jsx`) — fazer login | `POST /api/login` | Não |
+| `/gestao` (`Gestao.jsx`) — listar projetos na gestão | `GET /api/projetos` | Não |
+| `/gestao` (`NovoProjeto.jsx`) — cadastrar projeto | `POST /api/projetos` | Sim (`Authorization: Bearer`) |
+| `/gestao` (`NovoProjeto.jsx`) — editar projeto | `PUT /api/projetos/:id` | Sim (`Authorization: Bearer`) |
+| `/gestao` (`Gestao.jsx`) — excluir projeto | `DELETE /api/projetos/:id` | Sim (`Authorization: Bearer`) |
+
+---
+
+## Por que esconder a tela de gestão não protege os dados
+
+Ocultar os botões ou a rota `/gestao` no React é apenas uma barreira visual no navegador, pois qualquer pessoa pode inspecionar o código ou chamar a API diretamente via `curl` ou Postman. Quem realmente protege os dados é o servidor (`api-node/server.js`), que exige e valida a assinatura do token JWT no cabeçalho `Authorization` antes de gravar, editar ou excluir registros no banco.
+
+---
+
+## O que este front ainda não faz
+
+1. **Envio real do formulário de contato (`Contato.jsx`):** atualmente os campos são controlados em estado e exibem apenas uma confirmação local, sem enviar os dados para um endpoint de gravação na API.
+2. **Gestão de tecnologias e controle de rascunhos:** a tela `/gestao` gerencia apenas os projetos publicados (`GET /api/projetos`), sem interface para cadastrar/editar tecnologias (`POST/PUT/DELETE /api/tecnologias`) nem alternar o `status` de projetos entre `rascunho` e `publicado`.
 
 ---
 
@@ -98,16 +137,16 @@ HTTP/1.1 200 OK
 ```bash
 curl -i -X POST http://localhost:3000/api/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"dono@portfolio.dev","senha":"portfolio2026"}'
+  -d '{"email":"<email>","senha":"<senha>"}'
 ```
 Resposta:
 ```http
 HTTP/1.1 200 OK
 
-{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJkb25vQHBvcnRmb2xpby5kZXYiLCJpYXQiOjE3NzAwMDAwMDB9.assinatura_jwt"}
+{"token":"<seu_token_jwt>"}
 ```
 
-*(Para facilitar os testes seguintes no terminal, salve o token numa variável: `TOKEN="cole_o_token_aqui"`)*
+*(Para facilitar os testes seguintes no terminal, salve o token numa variável: `TOKEN="<seu_token_jwt>"`)*
 
 ### 6. Tentar criar projeto sem token (`POST /api/projetos` — bloqueada pelo middleware `autenticar`)
 ```bash
@@ -127,7 +166,7 @@ HTTP/1.1 401 Unauthorized
 curl -i -X POST http://localhost:3000/api/projetos \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"nome":"Projeto Autenticado","descricao":"Criado via API Node","tecnologias":"Node.js, Express, MariaDB","ano":2026}'
+  -d '{"nome":"Projeto Autenticado","descricao":"Criado via API Node","tecnologias":"Node.js, Express, MariaDB","link_github":"[https://github.com/ygor40/projeto2](https://github.com/ygor40/projeto2)","ano":2026}'
 ```
 Resposta:
 ```http
@@ -162,48 +201,16 @@ HTTP/1.1 204 No Content
 
 ---
 
-## Como rodar o Front-end em React (`portfolio-react/`)
-
-Em outro terminal, entre na pasta `portfolio-react/` e inicie o servidor Vite:
-
-```bash
-cd portfolio-react
-npm install
-npm run dev
-```
-
-A aplicação abre na porta **5173** (`http://localhost:5173`).
+## Histórico das Aulas (Front-end React)
 
 ### Aula 26: estado, lista e formulário
-
-Os projetos saíram do `App.jsx` e moram em `src/projetos.js`. A tela os desenha com `map()`.
-
-O formulário de contato (`src/Contato.jsx`) guarda o que a pessoa digita no estado (`useState`). Ele ainda não envia nada: avisa e limpa os campos. O envio de verdade chega com a API na Aula 27.
+Os projetos saíram do `App.jsx` e passaram a ser desenhados com `map()` e `key`. O formulário de contato (`src/Contato.jsx`) guarda o que a pessoa digita no estado (`useState`).
 
 ### Aula 27: os projetos vêm da API
+O front busca os projetos e o catálogo na API em Node, com `fetch` dentro de `useEffect(..., [])`, tratando carregamento (`carregando`), erro (`erro`) e `resposta.ok`. O endereço da API fica centralizado em `src/api.js`.
 
-O front busca os projetos e o catálogo na API em Node, com `fetch` dentro de um `useEffect`. O endereço da API fica em `src/api.js`. O arquivo `src/projetos.js` saiu: os dados moram no banco.
-
-Para a tela mostrar os dados, a API precisa estar de pé, com a porta 3000 em Public:
-
-```bash
-sudo service mariadb start
-cd api-node
-node server.js
-```
-
-### Aula 28: rotas, login e cadastro
-
-O front tem dois endereços principais: `/` (o Portfólio público em `Inicio.jsx`) e `/gestao` (a área de gestão em `Gestao.jsx`), além da rota `*` (`NaoEncontrada.jsx`) para endereços inexistentes. Quem troca a tela sem recarregar a página é o React Router (`react-router-dom`).
-
-Na gestão, o login pede o token para a API (`POST /api/login`), guarda no `localStorage` do navegador e manda no cabeçalho `Authorization` quando cadastra um projeto (`POST /api/projetos` via `NovoProjeto.jsx`).
-
-Para entrar, o usuário precisa existir no banco (Aula 24):
-
-```bash
-cd api-node
-node criar-usuario.js email senha
-```
+### Aula 28: rotas, login e CRUD de projetos
+O front usa `react-router-dom` com as rotas `/`, `/gestao` e `*`. Na área de gestão (`Gestao.jsx` e `NovoProjeto.jsx`), o login pede o token (`POST /api/login`), guarda no `localStorage` e permite cadastrar (`POST`), editar (`PUT`) e excluir (`DELETE`) projetos com os cinco campos do contrato, encerrando a sessão se a API responder `401`.
 
 ---
 
@@ -267,3 +274,5 @@ projeto2/
 # Autor
 
 **Ygor Gustavo Alves de Freitas**
+
+Uso de IA: utilizei o Gemini para auxiliar na estruturação dos componentes e operações de edição/exclusão em React e na revisão deste README.
