@@ -2,7 +2,7 @@
 
 Projeto full-stack composto por:
 - **`api-node/`**: API REST em **Node.js + Express** conectada ao **MariaDB**, com autenticação via **JWT** (`jsonwebtoken`) e senhas criptografadas com **`bcryptjs`**.
-- **`portfolio-react/`**: Front-end em **React + Vite** organizado em componentes (`Cabecalho`, `CardProjeto`, `Catalogo`, `Contato` e `Rodape`) integrado à API via `src/api.js`.
+- **`portfolio-react/`**: Front-end em **React + Vite** com navegação SPA via **`react-router-dom`** (`Inicio`, `Gestao` e `NaoEncontrada`), integrado à API via `src/api.js` e com cadastro autenticado de projetos (`NovoProjeto`).
 - **`portfolio-angular/`**: Versão anterior em Angular + PHP (histórico das atividades iniciais).
 
 ---
@@ -192,6 +192,19 @@ cd api-node
 node server.js
 ```
 
+### Aula 28: rotas, login e cadastro
+
+O front tem dois endereços principais: `/` (o Portfólio público em `Inicio.jsx`) e `/gestao` (a área de gestão em `Gestao.jsx`), além da rota `*` (`NaoEncontrada.jsx`) para endereços inexistentes. Quem troca a tela sem recarregar a página é o React Router (`react-router-dom`).
+
+Na gestão, o login pede o token para a API (`POST /api/login`), guarda no `localStorage` do navegador e manda no cabeçalho `Authorization` quando cadastra um projeto (`POST /api/projetos` via `NovoProjeto.jsx`).
+
+Para entrar, o usuário precisa existir no banco (Aula 24):
+
+```bash
+cd api-node
+node criar-usuario.js email senha
+```
+
 ---
 
 ## Estrutura do Projeto
@@ -211,6 +224,10 @@ projeto2/
 │   │   ├── CardProjeto.jsx
 │   │   ├── Catalogo.jsx
 │   │   ├── Contato.jsx
+│   │   ├── Gestao.jsx
+│   │   ├── Inicio.jsx
+│   │   ├── NaoEncontrada.jsx
+│   │   ├── NovoProjeto.jsx
 │   │   ├── Rodape.jsx
 │   │   ├── api.js
 │   │   ├── index.css

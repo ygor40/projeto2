@@ -1,59 +1,21 @@
-import { useEffect, useState } from 'react';
-import API from './api.js';
+import { Route, Routes } from 'react-router-dom';
 import Cabecalho from './Cabecalho.jsx';
-import CardProjeto from './CardProjeto.jsx';
-import Catalogo from './Catalogo.jsx';
-import Contato from './Contato.jsx';
+import Gestao from './Gestao.jsx';
+import Inicio from './Inicio.jsx';
+import NaoEncontrada from './NaoEncontrada.jsx';
 import Rodape from './Rodape.jsx';
 
-// App: o componente raiz. Ele monta a página com os outros componentes.
+// App: o componente raiz. O cabeçalho e o rodapé ficam; o miolo depende do endereço.
 function App() {
-  const [projetos, setProjetos] = useState([]);
-  const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState('');
-
-  // buscarProjetos: pede a lista para a API e guarda a resposta no estado.
-  async function buscarProjetos() {
-    try {
-      const resposta = await fetch(API + '/api/projetos');
-      if (!resposta.ok) {
-        throw new Error('A API respondeu ' + resposta.status);
-      }
-      const dados = await resposta.json();
-      setProjetos(dados);
-    } catch (falha) {
-      setErro('Não deu para carregar os projetos: ' + falha.message);
-    }
-    setCarregando(false);
-  }
-
-  // O efeito roda depois que a tela foi desenhada. A lista vazia do fim diz:
-  // rode uma única vez quando o componente aparecer.
-  useEffect(() => {
-    buscarProjetos();
-  }, []);
-
   return (
     <>
       <Cabecalho />
       <main>
-        <h2>Projetos</h2>
-        {carregando && <p>Carregando projetos...</p>}
-        {erro && <p className="erro">{erro}</p>}
-        <div className="cards">
-          {projetos.map((p) => (
-            <CardProjeto
-              key={p.id}
-              nome={p.nome}
-              descricao={p.descricao}
-              tecnologias={p.tecnologias}
-              link_github={p.link_github}
-              ano={p.ano}
-            />
-          ))}
-        </div>
-        <Catalogo />
-        <Contato />
+        <Routes>
+          <Route path="/" element={<Inicio />} />
+          <Route path="/gestao" element={<Gestao />} />
+          <Route path="*" element={<NaoEncontrada />} />
+        </Routes>
       </main>
       <Rodape />
     </>
